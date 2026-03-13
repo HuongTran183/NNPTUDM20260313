@@ -8,7 +8,9 @@ let {
 } = require('../utils/validatorHandler')
 let bcrypt = require('bcrypt')
 let jwt = require('jsonwebtoken')
+let { getPrivateKey } = require('../utils/jwtKeyProvider')
 let {checkLogin} = require('../utils/authHandler')
+let privateKey = getPrivateKey()
 /* GET home page. */
 router.post('/register', RegisterValidator, handleResultValidator, async function (req, res, next) {
     let newUser = userController.CreateAnUser(
@@ -36,7 +38,8 @@ router.post('/login', async function (req, res, next) {
             await userController.SuccessLogin(getUser);
             let token = jwt.sign({
                 id: getUser._id
-            },"secret",{
+            }, privateKey, {
+                algorithm: 'RS256',
                 expiresIn:'30d'
             })
             res.send(token)
